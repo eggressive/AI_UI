@@ -1,0 +1,27 @@
+# AI_UI — The AI Interface We Need
+# Root .gitignore for standalone repo
+
+# Rust
+target/
+**/*.rs.bk
+*.pdb
+*.exe
+
+# Environment and secrets
+.env
+.env.local
+*.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.log
+*.tmp
