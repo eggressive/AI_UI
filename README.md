@@ -1,4 +1,4 @@
-# AI_UI — The AI Interface We Need
+# AI_UI — The AI Shell We Need.
 
 > A GPU-accelerated, AI-native desktop shell built in Rust. The interface designed for the age of AI.
 
