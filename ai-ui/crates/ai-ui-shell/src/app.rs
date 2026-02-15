@@ -3,8 +3,11 @@ use crate::launcher;
 use crate::taskbar;
 
 use ai_ui_system::apps::AppEntry;
+use ai_ui_system::hotkeys::RegisteredHotkeys;
 use ai_ui_system::status::SystemStatus;
 
+use global_hotkey::{GlobalHotKeyEvent, HotKeyState};
+use iced::futures::SinkExt;
 use iced::widget::{column, container, text};
 use iced::{Element, Length, Subscription, Task, Theme};
 
@@ -21,6 +24,7 @@ pub struct AiUiShell {
     pub is_launcher_visible: bool,
     pub launcher_query: String,
     pub api_key: Option<String>,
+    hotkeys: Option<RegisteredHotkeys>,
 }
 
 #[derive(Debug, Clone)]
@@ -45,11 +49,39 @@ pub enum Message {
 
     // Taskbar
     TaskbarAction(taskbar::TaskbarAction),
+
+    // Global hotkey event
+    HotkeyPressed(u32),
+}
+
+fn hotkey_subscription() -> impl iced::futures::Stream<Item = Message> {
+    iced::stream::channel(32, async move |mut sender| {
+        let receiver = GlobalHotKeyEvent::receiver();
+        loop {
+            if let Ok(event) = receiver.try_recv() {
+                if event.state == HotKeyState::Pressed {
+                    let _ = sender.send(Message::HotkeyPressed(event.id)).await;
+                }
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        }
+    })
 }
 
 impl AiUiShell {
     pub fn new() -> (Self, Task<Message>) {
         let api_key = ai_ui_ai::load_api_key();
+
+        let hotkeys = match ai_ui_system::hotkeys::register_all_hotkeys() {
+            Ok(hk) => {
+                tracing::info!("Global hotkeys registered successfully");
+                Some(hk)
+            }
+            Err(e) => {
+                tracing::error!("Failed to register global hotkeys: {}", e);
+                None
+            }
+        };
 
         let app = Self {
             command_input: String::new(),
@@ -63,6 +95,7 @@ impl AiUiShell {
             is_launcher_visible: false,
             launcher_query: String::new(),
             api_key,
+            hotkeys,
         };
 
         // Load installed apps on startup
@@ -172,6 +205,18 @@ impl AiUiShell {
                 taskbar::handle_action(&mut self.taskbar_state, action);
                 Task::none()
             }
+            Message::HotkeyPressed(id) => {
+                if let Some(ref hotkeys) = self.hotkeys {
+                    if id == hotkeys.command_bar_id {
+                        return self.update(Message::ToggleCommandBar);
+                    } else if id == hotkeys.launcher_id {
+                        return self.update(Message::ToggleLauncher);
+                    } else if id == hotkeys.settings_id {
+                        tracing::info!("Settings hotkey pressed (Ctrl+Shift+S)");
+                    }
+                }
+                Task::none()
+            }
         }
     }
 
@@ -215,6 +260,12 @@ impl AiUiShell {
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
-        iced::time::every(std::time::Duration::from_secs(1)).map(|_| Message::Tick)
+        let tick = iced::time::every(std::time::Duration::from_secs(1)).map(|_| Message::Tick);
+
+        if self.hotkeys.is_some() {
+            Subscription::batch([tick, Subscription::run(hotkey_subscription)])
+        } else {
+            tick
+        }
     }
 }
