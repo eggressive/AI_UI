@@ -40,10 +40,7 @@ pub mod shell {
         windows_list
     }
 
-    unsafe extern "system" fn enum_callback(
-        hwnd: HWND,
-        lparam: LPARAM,
-    ) -> windows::core::BOOL {
+    unsafe extern "system" fn enum_callback(hwnd: HWND, lparam: LPARAM) -> windows::core::BOOL {
         let windows_list = &mut *(lparam.0 as *mut Vec<(String, HWND)>);
         if IsWindowVisible(hwnd).as_bool() {
             let mut title = [0u16; 256];
@@ -61,9 +58,8 @@ pub mod shell {
     /// Set this application as the Windows shell (replaces explorer.exe)
     pub fn set_as_shell(exe_path: &str) -> std::io::Result<()> {
         let hkcu = winreg::RegKey::predef(winreg::enums::HKEY_CURRENT_USER);
-        let (key, _) = hkcu.create_subkey(
-            r"Software\Microsoft\Windows NT\CurrentVersion\Winlogon",
-        )?;
+        let (key, _) =
+            hkcu.create_subkey(r"Software\Microsoft\Windows NT\CurrentVersion\Winlogon")?;
         key.set_value("Shell", &exe_path)?;
         Ok(())
     }

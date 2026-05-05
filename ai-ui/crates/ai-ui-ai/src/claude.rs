@@ -100,14 +100,8 @@ impl ClaudeClient {
     fn headers(&self) -> HeaderMap {
         let mut h = HeaderMap::new();
         h.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-        h.insert(
-            "x-api-key",
-            HeaderValue::from_str(&self.api_key).unwrap(),
-        );
-        h.insert(
-            "anthropic-version",
-            HeaderValue::from_static(API_VERSION),
-        );
+        h.insert("x-api-key", HeaderValue::from_str(&self.api_key).unwrap());
+        h.insert("anthropic-version", HeaderValue::from_static(API_VERSION));
         h
     }
 
@@ -274,7 +268,11 @@ pub fn desktop_tools() -> Vec<Tool> {
 pub async fn handle_tool_call(
     name: &str,
     input: &serde_json::Value,
-    handler: impl Fn(&str, &serde_json::Value) -> std::pin::Pin<Box<dyn std::future::Future<Output = String> + Send>> + Send,
+    handler: impl Fn(
+            &str,
+            &serde_json::Value,
+        ) -> std::pin::Pin<Box<dyn std::future::Future<Output = String> + Send>>
+        + Send,
 ) -> String {
     handler(name, input).await
 }

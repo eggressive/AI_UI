@@ -5,23 +5,20 @@ Thank you for your interest in contributing to AI_UI!
 ## Development Setup
 
 ```bash
-git clone https://github.com/PossumX/AI_UI.git
+git clone https://github.com/PossumXI/AI_UI.git
 cd AI_UI/ai-ui
 
-# Build
-cargo build
+# Check formatting
+cargo fmt --all --check
 
-# Run
-cargo run -p ai-ui-shell
+# Compile the full workspace against the lockfile
+cargo check --workspace --locked
 
 # Test
-cargo test --workspace
+cargo test --workspace --locked
 
-# Lint
-cargo clippy --workspace -- -D warnings
-
-# Format
-cargo fmt --all
+# Run the shell locally
+cargo run -p ai-ui-shell
 ```
 
 ## Workflow
@@ -36,9 +33,19 @@ cargo fmt --all
 
 ## Code Style
 
-- Follow `cargo fmt` and `cargo clippy` output
+- Follow `cargo fmt` output
 - Add tests for new functionality
 - Update documentation as needed
+
+## CI and Release
+
+GitHub Actions workflows must live at the repository root under `.github/workflows`.
+The Rust workspace itself lives in `ai-ui/`, so root workflows set that directory as
+their command working directory.
+
+- `CI` runs on pull requests and pushes to `main`.
+- The release workflow runs only for `v*.*.*` tags and publishes Linux, Windows,
+  and macOS shell artifacts to the GitHub release.
 
 ## Areas for Contribution
 
@@ -49,4 +56,4 @@ cargo fmt --all
 
 ## Questions?
 
-Open an [issue](https://github.com/PossumX/AI_UI/issues) for discussion.
+Open an [issue](https://github.com/PossumXI/AI_UI/issues) for discussion.

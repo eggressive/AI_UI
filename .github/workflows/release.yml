@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ai-ui-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x64
+            os: ubuntu-22.04
+            archive: AI-UI-linux-x64.tar.gz
+          - name: windows-x64
+            os: windows-2025-vs2026
+            archive: AI-UI-windows-x64.zip
+          - name: macos-arm64
+            os: macos-14
+            archive: AI-UI-macos-arm64.tar.gz
+
+    defaults:
+      run:
+        working-directory: ai-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux desktop dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libdbus-1-dev \
+            libgtk-3-dev \
+            libpango1.0-dev \
+            libssl-dev \
+            libvulkan-dev \
+            libwayland-dev \
+            libx11-dev \
+            libxi-dev \
+            libxkbcommon-dev \
+            libxrandr-dev \
+            pkg-config
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ai-ui
+          key: ${{ runner.os }}-ai-ui-release
+
+      - name: Build shell
+        run: cargo build --release -p ai-ui-shell --locked
+
+      - name: Package Unix artifact
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp target/release/ai-ui-shell dist/
+          cp assets/default-config.toml dist/
+          cp assets/ai-ui.desktop dist/
+          tar -C dist -czf "${{ matrix.archive }}" .
+
+      - name: Package Windows artifact
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item target\release\ai-ui-shell.exe dist\
+          Copy-Item assets\default-config.toml dist\
+          Compress-Archive -Path dist\* -DestinationPath "${{ matrix.archive }}" -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ai-ui/${{ matrix.archive }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
