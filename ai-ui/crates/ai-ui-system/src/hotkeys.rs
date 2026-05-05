@@ -17,18 +17,12 @@ pub fn register_shell_hotkeys(
     let mut hotkeys = Vec::new();
 
     // Ctrl+Shift+A — Open app launcher
-    let launcher = HotKey::new(
-        Some(Modifiers::CONTROL | Modifiers::SHIFT),
-        Code::KeyA,
-    );
+    let launcher = HotKey::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyA);
     manager.register(launcher)?;
     hotkeys.push(launcher);
 
     // Ctrl+Shift+S — Open settings
-    let settings = HotKey::new(
-        Some(Modifiers::CONTROL | Modifiers::SHIFT),
-        Code::KeyS,
-    );
+    let settings = HotKey::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyS);
     manager.register(settings)?;
     hotkeys.push(settings);
 

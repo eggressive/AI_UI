@@ -37,9 +37,9 @@ pub async fn enumerate_apps() -> anyhow::Result<Vec<AppEntry>> {
         use winreg::RegKey;
 
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-        if let Ok(uninstall) = hklm.open_subkey(
-            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
-        ) {
+        if let Ok(uninstall) =
+            hklm.open_subkey(r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
+        {
             for key_name in uninstall.enum_keys().filter_map(|k| k.ok()) {
                 if let Ok(subkey) = uninstall.open_subkey(&key_name) {
                     if let Ok(name) = subkey.get_value::<String, _>("DisplayName") {
@@ -70,9 +70,7 @@ pub async fn enumerate_apps() -> anyhow::Result<Vec<AppEntry>> {
         }
 
         // Also scan common Start Menu
-        let common_start = PathBuf::from(
-            r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs",
-        );
+        let common_start = PathBuf::from(r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs");
         if common_start.exists() {
             scan_start_menu(&common_start, &mut apps);
         }

@@ -1,6 +1,6 @@
 pub mod claude;
-pub mod ollama;
 pub mod mcp;
+pub mod ollama;
 pub mod streaming;
 
 use thiserror::Error;
@@ -24,10 +24,7 @@ pub enum AiError {
 }
 
 /// Unified AI backend — Claude first, Ollama fallback
-pub async fn generate_response(
-    prompt: &str,
-    claude_key: Option<&str>,
-) -> Result<String, AiError> {
+pub async fn generate_response(prompt: &str, claude_key: Option<&str>) -> Result<String, AiError> {
     // Try Claude first
     if let Some(key) = claude_key {
         let client = claude::ClaudeClient::new(key.to_string());

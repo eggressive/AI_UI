@@ -28,10 +28,7 @@ pub fn handle_action(state: &mut TaskbarState, action: TaskbarAction) {
 }
 
 /// Render the taskbar at the bottom of the screen
-pub fn view<'a>(
-    _state: &'a TaskbarState,
-    status: &'a SystemStatus,
-) -> Element<'a, Message> {
+pub fn view<'a>(_state: &'a TaskbarState, status: &'a SystemStatus) -> Element<'a, Message> {
     // Left side: launcher button + AI button
     let launcher_btn = button(text("Apps").size(13))
         .on_press(Message::ToggleLauncher)

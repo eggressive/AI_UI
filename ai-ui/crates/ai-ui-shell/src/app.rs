@@ -94,9 +94,7 @@ impl AiUiShell {
 
                 let api_key = self.api_key.clone();
                 Task::perform(
-                    async move {
-                        ai_ui_ai::generate_response(&prompt, api_key.as_deref()).await
-                    },
+                    async move { ai_ui_ai::generate_response(&prompt, api_key.as_deref()).await },
                     |result| match result {
                         Ok(response) => Message::AiResponseComplete(response),
                         Err(e) => Message::AiError(e.to_string()),
@@ -163,11 +161,9 @@ impl AiUiShell {
                 self.system_status = status;
                 Task::none()
             }
-            Message::Tick => {
-                Task::perform(ai_ui_system::status::read_status(), |status| {
-                    Message::SystemStatusUpdate(status)
-                })
-            }
+            Message::Tick => Task::perform(ai_ui_system::status::read_status(), |status| {
+                Message::SystemStatusUpdate(status)
+            }),
             Message::TaskbarAction(action) => {
                 taskbar::handle_action(&mut self.taskbar_state, action);
                 Task::none()

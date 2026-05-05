@@ -36,31 +36,19 @@ pub fn view<'a>(
                 let label = if desc.is_empty() {
                     column![text(&app.name).size(14)]
                 } else {
-                    column![
-                        text(&app.name).size(14),
-                        text(desc).size(11),
-                    ]
-                    .spacing(2)
+                    column![text(&app.name).size(14), text(desc).size(11),].spacing(2)
                 };
 
-                button(
-                    container(label)
-                        .padding(8)
-                        .width(Length::Fill),
-                )
-                .on_press(Message::LaunchApp(exec))
-                .width(Length::Fill)
-                .into()
+                button(container(label).padding(8).width(Length::Fill))
+                    .on_press(Message::LaunchApp(exec))
+                    .width(Length::Fill)
+                    .into()
             })
             .collect();
 
-        scrollable(
-            column(items)
-                .spacing(4)
-                .width(Length::Fill),
-        )
-        .height(Length::Fixed(400.0))
-        .into()
+        scrollable(column(items).spacing(4).width(Length::Fill))
+            .height(Length::Fixed(400.0))
+            .into()
     };
 
     let launcher = column![search_field, app_list]

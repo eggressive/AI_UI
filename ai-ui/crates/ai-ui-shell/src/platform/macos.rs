@@ -5,7 +5,6 @@ pub mod shell {
     /// macOS does not allow true shell replacement.
     /// The approach is a borderless, always-on-top window
     /// that hides the Dock and menu bar.
-
     use objc2_app_kit::*;
     use objc2_foundation::*;
 
@@ -13,8 +12,7 @@ pub mod shell {
         // Borderless full-screen, above dock
         window.setLevel(NSWindowLevel(25)); // kCGMainMenuWindowLevel + 1
         window.setCollectionBehavior(
-            NSWindowCollectionBehavior::CanJoinAllSpaces
-                | NSWindowCollectionBehavior::Stationary,
+            NSWindowCollectionBehavior::CanJoinAllSpaces | NSWindowCollectionBehavior::Stationary,
         );
         window.setOpaque(false);
 

@@ -85,21 +85,30 @@ pub async fn execute_action(action: &str) -> String {
         #[cfg(windows)]
         "volume_up" => {
             let _ = std::process::Command::new("powershell")
-                .args(["-Command", "(New-Object -ComObject WScript.Shell).SendKeys([char]175)"])
+                .args([
+                    "-Command",
+                    "(New-Object -ComObject WScript.Shell).SendKeys([char]175)",
+                ])
                 .output();
             "Volume increased".into()
         }
         #[cfg(windows)]
         "volume_down" => {
             let _ = std::process::Command::new("powershell")
-                .args(["-Command", "(New-Object -ComObject WScript.Shell).SendKeys([char]174)"])
+                .args([
+                    "-Command",
+                    "(New-Object -ComObject WScript.Shell).SendKeys([char]174)",
+                ])
                 .output();
             "Volume decreased".into()
         }
         #[cfg(windows)]
         "mute" => {
             let _ = std::process::Command::new("powershell")
-                .args(["-Command", "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"])
+                .args([
+                    "-Command",
+                    "(New-Object -ComObject WScript.Shell).SendKeys([char]173)",
+                ])
                 .output();
             "Volume muted/unmuted".into()
         }
