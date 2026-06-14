@@ -7,6 +7,8 @@ use ai_ui_system::status::SystemStatus;
 
 use iced::widget::{column, container, text};
 use iced::{Element, Length, Subscription, Task, Theme};
+use iced::futures::SinkExt;
+use global_hotkey::{GlobalHotKeyEvent, GlobalHotKeyManager, hotkey::HotKey};
 
 /// Main application state
 pub struct AiUiShell {
@@ -21,6 +23,10 @@ pub struct AiUiShell {
     pub is_launcher_visible: bool,
     pub launcher_query: String,
     pub api_key: Option<String>,
+    
+    // Global hotkey management
+    pub hotkey_manager: Option<GlobalHotKeyManager>,
+    pub registered_hotkeys: Vec<HotKey>,
 }
 
 #[derive(Debug, Clone)]
@@ -35,6 +41,7 @@ pub enum Message {
     // App Launcher
     ToggleCommandBar,
     ToggleLauncher,
+    ToggleSettings,
     LauncherQueryChanged(String),
     LaunchApp(String),
     AppsLoaded(Vec<AppEntry>),
@@ -43,6 +50,9 @@ pub enum Message {
     SystemStatusUpdate(SystemStatus),
     Tick,
 
+    // Hotkeys
+    GlobalHotKeyEvent(GlobalHotKeyEvent),
+
     // Taskbar
     TaskbarAction(taskbar::TaskbarAction),
 }
@@ -50,6 +60,9 @@ pub enum Message {
 impl AiUiShell {
     pub fn new() -> (Self, Task<Message>) {
         let api_key = ai_ui_ai::load_api_key();
+        
+        // Register global hotkeys
+        let (hotkey_manager, registered_hotkeys) = Self::register_hotkeys();
 
         let app = Self {
             command_input: String::new(),
@@ -63,6 +76,8 @@ impl AiUiShell {
             is_launcher_visible: false,
             launcher_query: String::new(),
             api_key,
+            hotkey_manager,
+            registered_hotkeys,
         };
 
         // Load installed apps on startup
@@ -71,6 +86,29 @@ impl AiUiShell {
         });
 
         (app, init_cmd)
+    }
+
+    fn register_hotkeys() -> (Option<GlobalHotKeyManager>, Vec<HotKey>) {
+        match ai_ui_system::hotkeys::register_command_bar_hotkey() {
+            Ok((manager, command_bar_hotkey)) => {
+                match ai_ui_system::hotkeys::register_shell_hotkeys(&manager) {
+                    Ok(shell_hotkeys) => {
+                        let mut all_hotkeys = vec![command_bar_hotkey];
+                        all_hotkeys.extend(shell_hotkeys);
+                        tracing::info!("Registered {} global hotkeys", all_hotkeys.len());
+                        (Some(manager), all_hotkeys)
+                    }
+                    Err(e) => {
+                        tracing::error!("Failed to register shell hotkeys: {}", e);
+                        (Some(manager), vec![command_bar_hotkey])
+                    }
+                }
+            }
+            Err(e) => {
+                tracing::error!("Failed to register hotkeys: {}", e);
+                (None, Vec::new())
+            }
+        }
     }
 
     pub fn theme(&self) -> Theme {
@@ -131,6 +169,11 @@ impl AiUiShell {
                 }
                 Task::none()
             }
+            Message::ToggleSettings => {
+                // For now, just log that settings was triggered
+                tracing::info!("Settings hotkey triggered - settings UI not implemented yet");
+                Task::none()
+            }
             Message::LauncherQueryChanged(query) => {
                 self.search_results =
                     ai_ui_system::apps::fuzzy_search(&self.installed_apps, &query);
@@ -164,11 +207,47 @@ impl AiUiShell {
             Message::Tick => Task::perform(ai_ui_system::status::read_status(), |status| {
                 Message::SystemStatusUpdate(status)
             }),
+            Message::GlobalHotKeyEvent(event) => {
+                self.handle_global_hotkey_event(event)
+            }
             Message::TaskbarAction(action) => {
                 taskbar::handle_action(&mut self.taskbar_state, action);
                 Task::none()
             }
         }
+    }
+
+    fn handle_global_hotkey_event(&mut self, event: GlobalHotKeyEvent) -> Task<Message> {
+        // Map hotkey events to the corresponding messages based on the registered hotkeys
+        if let Some(_hotkey_manager) = &self.hotkey_manager {
+            let hotkey_id = event.id;
+            // Find which hotkey was triggered
+            for (index, hotkey) in self.registered_hotkeys.iter().enumerate() {
+                if hotkey.id() == hotkey_id {
+                    tracing::debug!("Hotkey {} triggered (index: {})", hotkey_id, index);
+                    return match index {
+                        0 => {
+                            // First hotkey is always the command bar (Ctrl+Space)
+                            Task::done(Message::ToggleCommandBar)
+                        }
+                        1 => {
+                            // Second hotkey is the launcher (Ctrl+Shift+A)
+                            Task::done(Message::ToggleLauncher)
+                        }
+                        2 => {
+                            // Third hotkey is settings (Ctrl+Shift+S)
+                            Task::done(Message::ToggleSettings)
+                        }
+                        _ => {
+                            tracing::warn!("Unknown hotkey index: {}", index);
+                            Task::none()
+                        }
+                    };
+                }
+            }
+            tracing::warn!("Hotkey ID {} not found in registered hotkeys", hotkey_id);
+        }
+        Task::none()
     }
 
     pub fn view(&self) -> Element<'_, Message> {
@@ -211,6 +290,24 @@ impl AiUiShell {
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
-        iced::time::every(std::time::Duration::from_secs(1)).map(|_| Message::Tick)
+        let tick_subscription = iced::time::every(std::time::Duration::from_secs(1)).map(|_| Message::Tick);
+        
+        let hotkey_subscription = if self.hotkey_manager.is_some() {
+            Subscription::run(|| {
+                iced::stream::channel(100, |mut sender: iced::futures::channel::mpsc::Sender<Message>| async move {
+                    let receiver = GlobalHotKeyEvent::receiver();
+                    loop {
+                        if let Ok(event) = receiver.try_recv() {
+                            let _ = sender.send(Message::GlobalHotKeyEvent(event)).await;
+                        }
+                        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+                    }
+                })
+            })
+        } else {
+            Subscription::none()
+        };
+
+        Subscription::batch([tick_subscription, hotkey_subscription])
     }
 }
