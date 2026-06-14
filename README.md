@@ -5,6 +5,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
+[![Maintained](https://img.shields.io/badge/maintained%20at-eggressive%2FAI__UI-brightgreen)](https://github.com/eggressive/AI_UI)
+
+## ⚡ Active Fork
+**Upstream (PossumXI/AI_UI) appears inactive.** This fork at **[eggressive/AI_UI](https://github.com/eggressive/AI_UI)** is actively maintained with new features and bug fixes.
+
+- **Latest changes**: Hotkey wiring (Ctrl+Space, Ctrl+Shift+A, Ctrl+Shift+S), streaming integration (WIP)
+- **Built artifacts**: CI builds on every push (Windows, Linux, macOS ARM64)
+- **Issues/PRs**: Open them on this fork
 
 ## Overview
 
@@ -25,8 +33,8 @@
 ### Build & Run
 
 ```bash
-# Clone the repository
-git clone https://github.com/PossumX/AI_UI.git
+# Clone the repository (active fork)
+git clone https://github.com/eggressive/AI_UI.git
 cd AI_UI/ai-ui
 
 # Debug build (faster compilation)
@@ -52,7 +60,7 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 # %APPDATA%\ai-ui\config.toml (Windows)
 ```
 
-See [Configuration](#configuration) and the [Wiki](https://github.com/PossumX/AI_UI/wiki) for full setup.
+See [Configuration](#configuration) and the [Wiki](https://github.com/eggressive/AI_UI/wiki) for full setup.
 
 ## Architecture
 
@@ -75,9 +83,9 @@ See [Configuration](#configuration) and the [Wiki](https://github.com/PossumX/AI
 
 ## Documentation
 
-- **[Wiki](https://github.com/PossumX/AI_UI/wiki)** — Full documentation, guides, and architecture
-- **[Getting Started](https://github.com/PossumX/AI_UI/wiki/Getting-Started)** — Installation and first run
-- **[Configuration](https://github.com/PossumX/AI_UI/wiki/Configuration)** — API keys, themes, hotkeys
+- **[Wiki](https://github.com/eggressive/AI_UI/wiki)** — Full documentation, guides, and architecture
+- **[Getting Started](https://github.com/eggressive/AI_UI/wiki/Getting-Started)** — Installation and first run
+- **[Configuration](https://github.com/eggressive/AI_UI/wiki/Configuration)** — API keys, themes, hotkeys
 
 ## Project Structure
 
@@ -96,7 +104,7 @@ AI_UI_Framework/
 
 ## Contributing
 
-Contributions are welcome. Please read the [Contributing](https://github.com/PossumX/AI_UI/wiki/Contributing) guide on the wiki.
+Contributions are welcome. Please read the [Contributing](https://github.com/eggressive/AI_UI/wiki/Contributing) guide on the wiki and open PRs against the `eggressive/AI_UI` fork.
 
 ## License
 
