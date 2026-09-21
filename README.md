@@ -1,5 +1,8 @@
 # AI_UI — The AI Shell We Need.
 
+> [!NOTE]
+> **Arobi project context:** AI_UI is a public research repository exploring AI-native desktop-shell patterns. The current customer-facing Arobi workspace product is **[Ullumii by Arobi](https://www.iorch.net/ullumii)**. AI_UI is not a production Ullumii release.
+
 > A GPU-accelerated, AI-native desktop shell built in Rust. The interface designed for the age of AI.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -26,7 +29,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/PossumX/AI_UI.git
+git clone https://github.com/PossumXI/AI_UI.git
 cd AI_UI/ai-ui
 
 # Debug build (faster compilation)
@@ -52,7 +55,7 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 # %APPDATA%\ai-ui\config.toml (Windows)
 ```
 
-See [Configuration](#configuration) and the [Wiki](https://github.com/PossumX/AI_UI/wiki) for full setup.
+See [Configuration](#configuration) and the [Wiki](https://github.com/PossumXI/AI_UI/wiki) for full setup.
 
 ## Architecture
 
@@ -75,9 +78,9 @@ See [Configuration](#configuration) and the [Wiki](https://github.com/PossumX/AI
 
 ## Documentation
 
-- **[Wiki](https://github.com/PossumX/AI_UI/wiki)** — Full documentation, guides, and architecture
-- **[Getting Started](https://github.com/PossumX/AI_UI/wiki/Getting-Started)** — Installation and first run
-- **[Configuration](https://github.com/PossumX/AI_UI/wiki/Configuration)** — API keys, themes, hotkeys
+- **[Wiki](https://github.com/PossumXI/AI_UI/wiki)** — Full documentation, guides, and architecture
+- **[Getting Started](https://github.com/PossumXI/AI_UI/wiki/Getting-Started)** — Installation and first run
+- **[Configuration](https://github.com/PossumXI/AI_UI/wiki/Configuration)** — API keys, themes, hotkeys
 
 ## Project Structure
 
@@ -96,7 +99,7 @@ AI_UI_Framework/
 
 ## Contributing
 
-Contributions are welcome. Please read the [Contributing](https://github.com/PossumX/AI_UI/wiki/Contributing) guide on the wiki.
+Contributions are welcome. Please read the [Contributing](https://github.com/PossumXI/AI_UI/wiki/Contributing) guide on the wiki.
 
 ## License
 
